@@ -6,8 +6,8 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 RSpec.configure do |config|
   config.before(:all) do
     RedisPagination.configure do |configuration|
-      redis = Redis.new(:db => 15)
-      configuration.redis = redis
+      configuration.redis = Redis.new(:db => 15)
+      configuration.page_size = 25
     end
   end
 
