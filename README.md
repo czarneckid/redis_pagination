@@ -85,17 +85,13 @@ items = items_paginator.page(1, :with_scores => false, :reverse => false)
 
 Valid options in the `page` call for paginating a Redis list are:
 
-```
-:page_size controls the page size for the call. Default is `RedisPagination.page_size`.
-```
+* `:page_size` controls the page size for the call. Default is `RedisPagination.page_size`.
 
 Valid options in the `page` call for paginating a Redis sorted set are:
 
-```
-:page_size controls the page size for the call. Default is `RedisPagination.page_size`.
-:with_scores controls whether the score is returned along with the item. Default is `true`.
-:reverse controls whether to return items in highest-to-lowest (`true`) or loweest-to-highest order (`false`). Default is `true`.
-```
+* `:page_size` controls the page size for the call. Default is `RedisPagination.page_size`.
+* `:with_scores` controls whether the score is returned along with the item. Default is `true`.
+* `:reverse controls` whether to return items in highest-to-lowest (`true`) or loweest-to-highest order (`false`). Default is `true`.
 
 ## Caveats
 
