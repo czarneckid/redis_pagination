@@ -93,7 +93,7 @@ Valid options in the `page` call for paginating a Redis sorted set are:
 * `:with_scores` controls whether the score is returned along with the item. Default is `true`.
 * `:reverse controls` whether to return items in highest-to-lowest (`true`) or loweest-to-highest order (`false`). Default is `true`.
 
-## Caveats
+## Differences in Redis Client Libraries 
 
 There is a difference between how sorted set data with scores is returned between the 2.x and the 3.x branch of the Ruby Redis client library.
 
