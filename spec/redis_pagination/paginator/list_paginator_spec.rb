@@ -44,5 +44,16 @@ describe RedisPagination::Paginator::ListPaginator do
       result[:items][-1].should == 'item_27'
       result[:current_page].should == 2
     end
+
+    it 'should return the correct page of items with the options set' do
+      add_items_to_list('items', RedisPagination.page_size + 2)
+
+      items_paginator = RedisPagination.paginate('items')
+      result = items_paginator.page(1, :page_size => 5)
+      result[:items].length.should == 5
+      result[:items][-1].should == 'item_5'
+      result[:current_page].should == 1
+      result[:total_pages].should == 6
+    end
   end
 end

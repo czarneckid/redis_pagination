@@ -28,18 +28,20 @@ module RedisPagination
       # Retrieve a page of items for +key+.
       #
       # @param page [int] Page of items to retrieve.
-      # @param options [Hash] Options.
+      # @param options [Hash] Options. Valid options are :page_size.
+      #   :page_size controls the page size for the call. Default is +RedisPagination.page_size+.      
       #
       # @return a +Hash+ containing +:current_page+, +:total_pages+, +:total_items+ and +:items+.
       def page(page, options = {})
         current_page = page < 1 ? 1 : page
         index_for_redis = current_page - 1
-        starting_offset = index_for_redis * RedisPagination.page_size
-        ending_offset = (starting_offset + RedisPagination.page_size) - 1
+        page_size = options[:page_size] || RedisPagination.page_size
+        starting_offset = index_for_redis * page_size
+        ending_offset = (starting_offset + page_size) - 1
 
         {
           :current_page => current_page,
-          :total_pages => total_pages,
+          :total_pages => total_pages(page_size),
           :total_items => total_items,
           :items => RedisPagination.redis.lrange(@key, starting_offset, ending_offset)
         }        

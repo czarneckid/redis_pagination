@@ -53,6 +53,12 @@ describe RedisPagination::Paginator::SortedSetPaginator do
       result = items_paginator.page(2, :reverse => false, :with_scores => false)
       result[:items].length.should == 2
       result[:items][-1].should == 'item_27'
+
+      result = items_paginator.page(1, :page_size => 5, :with_scores => false)
+      result[:items].length.should == 5
+      result[:items][-1].should == 'item_23'
+      result[:current_page].should == 1
+      result[:total_pages].should == 6
     end
   end
 end
