@@ -32,7 +32,7 @@ module RedisPagination
       #   :with_scores controls whether the score is returned along with the item. Default is +true+.
       #   :reverse controls whether to return items in highest-to-lowest (+true+) or loweest-to-highest order (+false+). Default is +true+.
       #
-      # @return a page of items for +key+.
+      # @return a +Hash+ containing +:current_page+, +:total_pages+, +:total_items+ and +:items+.
       def page(page, options = {})
         current_page = page < 1 ? 1 : page
         index_for_redis = current_page - 1
@@ -42,11 +42,16 @@ module RedisPagination
         with_scores = options.has_key?(:with_scores) ? options[:with_scores] : true
         reverse = options.has_key?(:reverse) ? options[:reverse] : true
 
-        if reverse
-          RedisPagination.redis.zrevrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
-        else
-          RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
-        end
+        {
+          :current_page => current_page,
+          :total_pages => total_pages,
+          :total_items => total_items,
+          :items => if reverse
+            RedisPagination.redis.zrevrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+          else
+            RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+          end
+        } 
       end
     end
   end

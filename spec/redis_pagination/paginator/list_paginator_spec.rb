@@ -31,14 +31,18 @@ describe RedisPagination::Paginator::ListPaginator do
       add_items_to_list('items', RedisPagination.page_size + 2)
 
       items_paginator = RedisPagination.paginate('items')
-      items = items_paginator.page(1)
-      items.length.should == RedisPagination.page_size
-      items[0].should == 'item_1'
-      items[-1].should == 'item_25'
+      result = items_paginator.page(1)
+      result[:items].length.should == RedisPagination.page_size
+      result[:items][0].should == 'item_1'
+      result[:items][-1].should == 'item_25'
+      result[:current_page].should == 1
+      result[:total_pages].should == 2
+      result[:total_items].should == RedisPagination.page_size + 2
 
-      items = items_paginator.page(2)
-      items.length.should == 2
-      items[-1].should == 'item_27'
+      result = items_paginator.page(2)
+      result[:items].length.should == 2
+      result[:items][-1].should == 'item_27'
+      result[:current_page].should == 2
     end
   end
 end

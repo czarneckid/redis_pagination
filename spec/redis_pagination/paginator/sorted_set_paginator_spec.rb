@@ -31,28 +31,28 @@ describe RedisPagination::Paginator::SortedSetPaginator do
       add_items_to_sorted_set('items', RedisPagination.page_size + 2)
 
       items_paginator = RedisPagination.paginate('items')
-      items = items_paginator.page(1)
-      items.length.should == RedisPagination.page_size
-      items[0].should == ['item_27', 27.0]
-      items[-1].should == ['item_3', 3.0]
+      result = items_paginator.page(1)
+      result[:items].length.should == RedisPagination.page_size
+      result[:items][0].should == ['item_27', 27.0]
+      result[:items][-1].should == ['item_3', 3.0]
 
-      items = items_paginator.page(2)
-      items.length.should == 2
-      items[-1].should == ['item_1', 1.0]
+      result = items_paginator.page(2)
+      result[:items].length.should == 2
+      result[:items][-1].should == ['item_1', 1.0]
     end
 
     it 'should return the correct page of items with the options set' do
       add_items_to_sorted_set('items', RedisPagination.page_size + 2)
 
       items_paginator = RedisPagination.paginate('items')
-      items = items_paginator.page(1, :reverse => false, :with_scores => false)
-      items.length.should == RedisPagination.page_size
-      items[0].should == 'item_1'
-      items[-1].should == 'item_25'
+      result = items_paginator.page(1, :reverse => false, :with_scores => false)
+      result[:items].length.should == RedisPagination.page_size
+      result[:items][0].should == 'item_1'
+      result[:items][-1].should == 'item_25'
 
-      items = items_paginator.page(2, :reverse => false, :with_scores => false)
-      items.length.should == 2
-      items[-1].should == 'item_27'
+      result = items_paginator.page(2, :reverse => false, :with_scores => false)
+      result[:items].length.should == 2
+      result[:items][-1].should == 'item_27'
     end
   end
 end
