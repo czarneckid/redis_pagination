@@ -79,6 +79,20 @@ items = items_paginator.page(2)
  => {:current_page=>2, :total_pages=>2, :total_items=>27, :items=>[["item_2", 2.0], ["item_1", 1.0]]}
 items = items_paginator.page(1, :with_scores => false, :reverse => false)
  => {:current_page=>1, :total_pages=>2, :total_items=>27, :items=>["item_1", "item_2", "item_3", "item_4", "item_5", "item_6", "item_7", "item_8", "item_9", "item_10", "item_11", "item_12", "item_13", "item_14", "item_15", "item_16", "item_17", "item_18", "item_19", "item_20", "item_21", "item_22", "item_23", "item_24", "item_25"]}
+
+# If the key is non-existent, the paginate call will return a RedisPagination::Paginator::NonePaginator
+items_paginator = RedisPagination.paginate('unknown-key-in-redis')
+ => #<RedisPagination::Paginator::NonePaginator:0x007f956b8052c0> 
+items_paginator.total_items
+ => 0 
+items_paginator.total_pages
+ => 0 
+items_paginator.total_pages(5)
+ => 0 
+items = items_paginator.page(1)
+ => {:current_page=>1, :total_pages=>0, :total_items=>0, :items=>[]} 
+items = items_paginator.page(2)
+ => {:current_page=>2, :total_pages=>0, :total_items=>0, :items=>[]}
 ```
 
 ## Paging Options
