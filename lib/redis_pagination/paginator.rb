@@ -1,4 +1,5 @@
 require 'redis_pagination/paginator/list_paginator'
+require 'redis_pagination/paginator/none_paginator'
 require 'redis_pagination/paginator/sorted_set_paginator'
 
 module RedisPagination
@@ -21,6 +22,8 @@ module RedisPagination
         RedisPagination::Paginator::ListPaginator.new(key, options)
       when 'zset'
         RedisPagination::Paginator::SortedSetPaginator.new(key, options)
+      when 'none'
+        RedisPagination::Paginator::NonePaginator.new(key, options)
       else
         raise "Pagination is not supported for #{type}"
       end

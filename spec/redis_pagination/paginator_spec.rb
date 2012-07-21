@@ -16,6 +16,10 @@ describe RedisPagination::Paginator do
       RedisPagination.paginate("items").should be_a_kind_of(RedisPagination::Paginator::SortedSetPaginator)
     end
 
+    it 'should return a RedisPagination::Paginator::NonePaginator' do
+      RedisPagination.paginate("unknown-key-in-redis").should be_a_kind_of(RedisPagination::Paginator::NonePaginator)
+    end
+
     it 'should raise an exception if trying to paginate a Redis type that cannot be paginated' do
       redis = RedisPagination.redis
       redis.set("items", "item_1")
