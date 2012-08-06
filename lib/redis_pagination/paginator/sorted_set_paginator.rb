@@ -3,7 +3,7 @@ module RedisPagination
     class SortedSetPaginator
       # Initialize a new instance with a given Redis +key+ and options.
       #
-      # @param key [String] Redis list key.
+      # @param key [String] Redis sorted set key.
       # @param options [Hash] Options for paginator.
       def initialize(key, options = {})
         @key = key
