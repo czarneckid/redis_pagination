@@ -30,7 +30,7 @@ $ gem install redis_pagination
 Configure redis_pagination:
 
 ```ruby
-RedisPaginations.configure do |configuration|
+RedisPagination.configure do |configuration|
   configuration.redis = Redis.new
   configuration.page_size = 25
 end
