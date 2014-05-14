@@ -61,4 +61,15 @@ describe RedisPagination::Paginator::SortedSetPaginator do
       result[:total_pages].should == 6
     end
   end
+
+  describe '#all' do
+    it 'should return all the items with the default options' do
+      add_items_to_sorted_set('items', 50)
+      items_paginator = RedisPagination.paginate('items')
+      items_paginator.all.tap do |all_items|
+        all_items[:total_items].should == 50
+        all_items[:items].length.should == 50
+      end
+    end
+  end
 end
