@@ -95,6 +95,12 @@ items = items_paginator.page(2)
  => {:current_page=>2, :total_pages=>0, :total_items=>0, :items=>[]}
 ```
 
+## Retrieving All Members
+
+The `RedisPagination::Paginator::SortedSetPaginator` and `RedisPagination::Paginator::ListPaginator`
+classes have an `all` method that can be called to retrieve all elements from these data types for
+a given key.
+
 ## Paging Options
 
 Valid options in the `page` call for paginating a Redis list are:
