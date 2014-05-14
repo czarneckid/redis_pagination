@@ -12,7 +12,7 @@ module RedisPagination
       # Return the total number of pages for +key+.
       #
       # @param page_size [int] Page size to calculate total number of pages.
-      # 
+      #
       # @return the total number of pages for +key+.
       def total_pages(page_size = RedisPagination.page_size)
         (RedisPagination.redis.zcard(@key) / page_size.to_f).ceil
@@ -53,7 +53,28 @@ module RedisPagination
           else
             RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
           end
-        } 
+        }
+      end
+
+      # Retrieve all items for +key+.
+      #
+      # @param options [Hash] Options. Valid options are :with_scores and :reverse.
+      #   :with_scores controls whether the score is returned along with the item. Default is +true+.
+      #   :reverse controls whether to return items in highest-to-lowest (+true+) or loweest-to-highest order (+false+). Default is +true+.
+      #
+      # @return a +Hash+ containing +:total_items+ and +:items+.
+      def all(options = {})
+        with_scores = options.has_key?(:with_scores) ? options[:with_scores] : true
+        reverse = options.has_key?(:reverse) ? options[:reverse] : true
+
+        {
+          :total_items => total_items,
+          :items => if reverse
+            RedisPagination.redis.zrevrange(@key, 0, -1, :with_scores => with_scores)
+          else
+            RedisPagination.redis.zrange(@key, 0, -1, :with_scores => with_scores)
+          end
+        }
       end
     end
   end
