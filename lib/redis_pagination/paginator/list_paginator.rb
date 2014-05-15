@@ -49,9 +49,11 @@ module RedisPagination
 
       # Retrieve all items for +key+.
       #
-      # @return a +Hash+ containing +:total_items+ and +:items+.
+      # @return a +Hash+ containing +:current_page+, +:total_pages+, +:total_items+ and +:items+.
       def all(options = {})
         {
+          :current_page => 1,
+          :total_pages => 1,
           :total_items => total_items,
           :items => RedisPagination.redis.lrange(@key, 0, -1)
         }

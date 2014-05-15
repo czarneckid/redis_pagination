@@ -3,6 +3,8 @@
 ## 1.2.0 (2014-05-15)
 
 * Added `#all` method to `RedisPagination::Paginator::NonePaginator`.
+* Ensure various `#all` methods return Hash containing
+  `:current_page`, `:total_pages`, `:total_items` and `:items`.
 
 ## 1.1.0 (2014-05-14)
 
