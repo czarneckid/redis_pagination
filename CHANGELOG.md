@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.2.0 (2014-05-15)
+
+* Added `#all` method to `RedisPagination::Paginator::NonePaginator`.
+
 ## 1.1.0 (2014-05-14)
 
 * Added `#all` method to `RedisPagination::Paginator::SortedSetPaginator` and

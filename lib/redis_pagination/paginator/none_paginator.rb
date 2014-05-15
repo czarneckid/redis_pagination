@@ -11,7 +11,7 @@ module RedisPagination
       # Return the total number of pages for +key+.
       #
       # @param page_size [int] Page size to calculate total number of pages.
-      # 
+      #
       # @return the total number of pages for +key+.
       def total_pages(page_size = RedisPagination.page_size)
         0
@@ -28,7 +28,7 @@ module RedisPagination
       #
       # @param page [int] Page of items to retrieve.
       # @param options [Hash] Options. Valid options are :page_size.
-      #   :page_size controls the page size for the call. Default is +RedisPagination.page_size+.      
+      #   :page_size controls the page size for the call. Default is +RedisPagination.page_size+.
       #
       # @return a +Hash+ containing +:current_page+, +:total_pages+, +:total_items+ and +:items+.
       def page(page, options = {})
@@ -39,7 +39,17 @@ module RedisPagination
           :total_pages => 0,
           :total_items => 0,
           :items => []
-        }        
+        }
+      end
+
+      # Retrieve all items for +key+.
+      #
+      # @return a +Hash+ containing +:total_items+ and +:items+.
+      def all(options = {})
+        {
+          :total_items => 0,
+          :items => []
+        }
       end
     end
   end

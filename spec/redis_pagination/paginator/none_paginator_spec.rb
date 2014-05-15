@@ -21,7 +21,7 @@ describe RedisPagination::Paginator::NonePaginator do
   end
 
   describe '#page' do
-    it 'should return the correct page of items' do      
+    it 'should return the correct page of items' do
       items_paginator = RedisPagination.paginate('unknown-key-in-redis')
       result = items_paginator.page(1)
       result[:items].length.should == 0
@@ -40,6 +40,16 @@ describe RedisPagination::Paginator::NonePaginator do
       result[:items].length.should == 0
       result[:current_page].should == 1
       result[:total_pages].should == 0
+    end
+  end
+
+  describe '#all' do
+    it 'should return all the items with the default options' do
+      items_paginator = RedisPagination.paginate('unknown-key-in-redis')
+      items_paginator.all.tap do |all_items|
+        all_items[:total_items].should == 0
+        all_items[:items].length.should == 0
+      end
     end
   end
 end
