@@ -3,7 +3,7 @@ require 'spec_helper'
 describe RedisPagination::Paginator::ListPaginator do
   describe '#total_pages' do
     it 'should return the correct number of pages' do
-      add_items_to_list('items', RedisPagination.page_size + 2)
+      add_items_to_list('items', RedisPagination.page_size * 2)
 
       items_paginator = RedisPagination.paginate('items')
       items_paginator.total_pages.should == 2
