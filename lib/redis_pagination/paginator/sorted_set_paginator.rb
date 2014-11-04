@@ -54,13 +54,14 @@ module RedisPagination
           :total_items => total_items,
           :items => if reverse
             if @keys
-              @keys.map{|k| RedisPagination.redis.zrevrange(k, starting_offset, ending_offset, :with_scores => with_scores) }.flatten
+              binding.pry
+              @keys.map{|k| RedisPagination.redis.zrevrange(k, starting_offset, ending_offset, :with_scores => with_scores) }
             else
               RedisPagination.redis.zrevrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
             end
           else
             if @keys
-              @keys.map{|k| RedisPagination.redis.zrange(k, starting_offset, ending_offset, :with_scores => with_scores) }.flatten
+              @keys.map{|k| RedisPagination.redis.zrange(k, starting_offset, ending_offset, :with_scores => with_scores) }
             else
               RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
             end
@@ -85,13 +86,13 @@ module RedisPagination
           :total_items => total_items,
           :items => if reverse
             if @keys
-              @keys.map{|k| RedisPagination.redis.zrevrange(k, 0, -1, :with_scores => with_scores) }.flatten
+              @keys.map{|k| RedisPagination.redis.zrevrange(k, 0, -1, :with_scores => with_scores) }
             else
               RedisPagination.redis.zrevrange(@key, 0, -1, :with_scores => with_scores)
             end
           else
             if @keys
-              @keys.map{|k| RedisPagination.redis.zrange(k, 0, -1, :with_scores => with_scores) }.flatten
+              @keys.map{|k| RedisPagination.redis.zrange(k, 0, -1, :with_scores => with_scores) }
             else
               RedisPagination.redis.zrange(@key, 0, -1, :with_scores => with_scores)
             end
