@@ -6,7 +6,11 @@ module RedisPagination
       # @param key [String] Redis list key.
       # @param options [Hash] Options for paginator.
       def initialize(key, options = {})
-        @key = key
+        unless key.is_a?Array
+          @key = key
+        else
+          @keys = key
+        end
       end
 
       # Return the total number of pages for +key+.
@@ -15,14 +19,14 @@ module RedisPagination
       #
       # @return the total number of pages for +key+.
       def total_pages(page_size = RedisPagination.page_size)
-        (RedisPagination.redis.llen(@key) / page_size.to_f).ceil
+        ((@keys ? @keys.map{|k| RedisPagination.redis.llen(k)}.reduce(:+) : RedisPagination.redis.llen(@key)) / page_size.to_f).ceil
       end
 
       # Return the total number of items for +key+.
       #
       # @return the total number of items for +key+.
       def total_items
-        RedisPagination.redis.llen(@key)
+        (@keys ? @keys.map{|k| RedisPagination.redis.llen(k)}.reduce(:+) : RedisPagination.redis.llen(@key))
       end
 
       # Retrieve a page of items for +key+.
@@ -43,7 +47,11 @@ module RedisPagination
           :current_page => current_page,
           :total_pages => total_pages(page_size),
           :total_items => total_items,
-          :items => RedisPagination.redis.lrange(@key, starting_offset, ending_offset)
+          :items => if @keys
+            @keys.map{|k| RedisPagination.redis.lrange(k, starting_offset, ending_offset)}.flatten
+          else
+            RedisPagination.redis.lrange(@key, starting_offset, ending_offset)
+          end
         }
       end
 
@@ -55,7 +63,11 @@ module RedisPagination
           :current_page => 1,
           :total_pages => 1,
           :total_items => total_items,
-          :items => RedisPagination.redis.lrange(@key, 0, -1)
+          :items => if @keys
+            @keys.map{|k| RedisPagination.redis.lrange(k, 0, -1)}.flatten
+          else
+            RedisPagination.redis.lrange(@key, 0, -1)
+          end
         }
       end
     end
