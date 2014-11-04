@@ -47,25 +47,26 @@ module RedisPagination
 
         with_scores = options.has_key?(:with_scores) ? options[:with_scores] : true
         reverse = options.has_key?(:reverse) ? options[:reverse] : true
+        binding.pry
+        items = if reverse
+          if @keys
+            @keys.map{|k| RedisPagination.redis.zrevrange(k, 0, -1, :with_scores => with_scores) }
+          else
+            RedisPagination.redis.zrevrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+          end
+        else
+          if @keys
+            @keys.map{|k| RedisPagination.redis.zrange(k, 0, -1, :with_scores => with_scores) }
+          else
+            RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+          end
+        end
 
         {
           :current_page => current_page,
           :total_pages => total_pages(page_size),
           :total_items => total_items,
-          :items => if reverse
-            if @keys
-              binding.pry
-              @keys.map{|k| RedisPagination.redis.zrevrange(k, starting_offset, ending_offset, :with_scores => with_scores) }
-            else
-              RedisPagination.redis.zrevrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
-            end
-          else
-            if @keys
-              @keys.map{|k| RedisPagination.redis.zrange(k, starting_offset, ending_offset, :with_scores => with_scores) }
-            else
-              RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
-            end
-          end
+          :items => items[starting_offset..ending_offset]
         }
       end
 
@@ -79,24 +80,26 @@ module RedisPagination
       def all(options = {})
         with_scores = options.has_key?(:with_scores) ? options[:with_scores] : true
         reverse = options.has_key?(:reverse) ? options[:reverse] : true
-
+        binding.pry
+        items = if reverse
+          if @keys
+            @keys.map{|k| RedisPagination.redis.zrevrange(k, 0, -1, :with_scores => with_scores) }
+          else
+            RedisPagination.redis.zrevrange(@key, 0, -1, :with_scores => with_scores)
+          end
+        else
+          if @keys
+            @keys.map{|k| RedisPagination.redis.zrange(k, 0, -1, :with_scores => with_scores) }
+          else
+            RedisPagination.redis.zrange(@key, 0, -1, :with_scores => with_scores)
+          end
+        end
+        
         {
           :current_page => 1,
           :total_pages => 1,
           :total_items => total_items,
-          :items => if reverse
-            if @keys
-              @keys.map{|k| RedisPagination.redis.zrevrange(k, 0, -1, :with_scores => with_scores) }
-            else
-              RedisPagination.redis.zrevrange(@key, 0, -1, :with_scores => with_scores)
-            end
-          else
-            if @keys
-              @keys.map{|k| RedisPagination.redis.zrange(k, 0, -1, :with_scores => with_scores) }
-            else
-              RedisPagination.redis.zrange(@key, 0, -1, :with_scores => with_scores)
-            end
-          end
+          :items => items
         }
       end
     end
