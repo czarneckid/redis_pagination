@@ -6,7 +6,11 @@ module RedisPagination
       # @param key [String] Redis sorted set key.
       # @param options [Hash] Options for paginator.
       def initialize(key, options = {})
-        @key = key
+        unless key.is_a?Array
+          @key = key
+        else
+          @keys = key
+        end
       end
 
       # Return the total number of pages for +key+.
@@ -15,14 +19,14 @@ module RedisPagination
       #
       # @return the total number of pages for +key+.
       def total_pages(page_size = RedisPagination.page_size)
-        (RedisPagination.redis.zcard(@key) / page_size.to_f).ceil
+        ((@keys ? @keys.map{|k| RedisPagination.redis.zcard(k)}.reduce(:+) : RedisPagination.redis.zcard(@key)) / page_size.to_f).ceil
       end
 
       # Return the total number of items for +key+.
       #
       # @return the total number of items for +key+.
       def total_items
-        RedisPagination.redis.zcard(@key)
+        (@keys ? @keys.map{|k| RedisPagination.redis.zcard(k)}.reduce(:+) : RedisPagination.redis.zcard(@key))
       end
 
       # Retrieve a page of items for +key+.
@@ -49,9 +53,17 @@ module RedisPagination
           :total_pages => total_pages(page_size),
           :total_items => total_items,
           :items => if reverse
-            RedisPagination.redis.zrevrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+            if @keys
+              @keys.map{|k| RedisPagination.redis.zrevrange(@key, starting_offset, ending_offset, :with_scores => with_scores) }.flatten
+            else
+              RedisPagination.redis.zrevrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+            end
           else
-            RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+            if @keys
+              @keys.map{|k| RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores) }.flatten
+            else
+              RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+            end
           end
         }
       end
@@ -72,9 +84,17 @@ module RedisPagination
           :total_pages => 1,
           :total_items => total_items,
           :items => if reverse
-            RedisPagination.redis.zrevrange(@key, 0, -1, :with_scores => with_scores)
+            if @keys
+              @keys.map{|k| RedisPagination.redis.zrevrange(@key, 0, -1, :with_scores => with_scores) }.flatten
+            else
+              RedisPagination.redis.zrevrange(@key, 0, -1, :with_scores => with_scores)
+            end
           else
-            RedisPagination.redis.zrange(@key, 0, -1, :with_scores => with_scores)
+            if @keys
+              @keys.map{|k| RedisPagination.redis.zrange(@key, 0, -1, :with_scores => with_scores) }.flatten
+            else
+              RedisPagination.redis.zrange(@key, 0, -1, :with_scores => with_scores)
+            end
           end
         }
       end
