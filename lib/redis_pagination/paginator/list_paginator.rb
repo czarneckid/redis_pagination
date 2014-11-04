@@ -42,16 +42,18 @@ module RedisPagination
         page_size = options[:page_size] || RedisPagination.page_size
         starting_offset = index_for_redis * page_size
         ending_offset = (starting_offset + page_size) - 1
+        
+        items = if @keys
+          @keys.map{|k| RedisPagination.redis.lrange(k, 0, -1) }.flatten(1)
+        else
+          RedisPagination.redis.lrange(@key, starting_offset, ending_offset)
+        end
 
         {
           :current_page => current_page,
           :total_pages => total_pages(page_size),
           :total_items => total_items,
-          :items => if @keys
-            @keys.map{|k| RedisPagination.redis.lrange(k, starting_offset, ending_offset)}.flatten
-          else
-            RedisPagination.redis.lrange(@key, starting_offset, ending_offset)
-          end
+          :items => items[starting_offset..ending_offset]
         }
       end
 
@@ -64,7 +66,7 @@ module RedisPagination
           :total_pages => 1,
           :total_items => total_items,
           :items => if @keys
-            @keys.map{|k| RedisPagination.redis.lrange(k, 0, -1)}.flatten
+            @keys.map{|k| RedisPagination.redis.lrange(k, 0, -1) }.flatten(1)
           else
             RedisPagination.redis.lrange(@key, 0, -1)
           end
