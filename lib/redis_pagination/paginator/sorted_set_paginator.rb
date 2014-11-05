@@ -52,13 +52,13 @@ module RedisPagination
           if @keys
             @keys.map{|k| RedisPagination.redis.zrevrange(k, 0, -1, :with_scores => with_scores) }.flatten(1).sort {|a,b| b[1] <=> a[1]}
           else
-            RedisPagination.redis.zrevrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+            RedisPagination.redis.zrevrange(@key, 0, -1, :with_scores => with_scores)
           end
         else
           if @keys
             @keys.map{|k| RedisPagination.redis.zrange(k, 0, -1, :with_scores => with_scores) }.flatten(1).sort {|a,b| a[1] <=> b[1]}
           else
-            RedisPagination.redis.zrange(@key, starting_offset, ending_offset, :with_scores => with_scores)
+            RedisPagination.redis.zrange(@key, 0, -1, :with_scores => with_scores)
           end
         end
 
