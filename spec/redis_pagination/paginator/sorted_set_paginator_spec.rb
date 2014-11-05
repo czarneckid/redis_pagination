@@ -1,74 +1,157 @@
 require 'spec_helper'
 
 describe RedisPagination::Paginator::SortedSetPaginator do
-  describe '#total_pages' do
-    it 'should return the correct number of pages' do
-      add_items_to_sorted_set('items', RedisPagination.page_size + 2)
 
-      items_paginator = RedisPagination.paginate('items')
-      items_paginator.total_pages.should == 2
+  context 'single key' do
+    describe '#total_pages' do
+      it 'should return the correct number of pages' do
+        add_items_to_sorted_set('items', RedisPagination.page_size * 2)
+
+        items_paginator = RedisPagination.paginate('items')
+        items_paginator.total_pages.should == 2
+      end
+
+      it 'should return the correct number of pages using a different page size' do
+        add_items_to_sorted_set('items', 25)
+
+        items_paginator = RedisPagination.paginate('items')
+        items_paginator.total_pages(5).should == 5
+      end
     end
 
-    it 'should return the correct number of pages using a different page size' do
-      add_items_to_sorted_set('items', 25)
+    describe '#total_items' do
+      it 'should return the correct number of items' do
+        add_items_to_sorted_set('items', RedisPagination.page_size)
 
-      items_paginator = RedisPagination.paginate('items')
-      items_paginator.total_pages(5).should == 5
+        items_paginator = RedisPagination.paginate('items')
+        items_paginator.total_items.should == RedisPagination.page_size
+      end
+    end
+
+    describe '#page' do
+      it 'should return the correct page of items with the default options' do
+        add_items_to_sorted_set('items', RedisPagination.page_size + 2)
+
+        items_paginator = RedisPagination.paginate('items')
+        result = items_paginator.page(1)
+        result[:items].length.should == RedisPagination.page_size
+        result[:items][0].should == ['item_27', 27.0]
+        result[:items][-1].should == ['item_3', 3.0]
+
+        result = items_paginator.page(2)
+        result[:items].length.should == 2
+        result[:items][-1].should == ['item_1', 1.0]
+      end
+
+      it 'should return the correct page of items with the options set' do
+        add_items_to_sorted_set('items', RedisPagination.page_size + 2)
+
+        items_paginator = RedisPagination.paginate('items')
+        result = items_paginator.page(1, :reverse => false, :with_scores => false)
+        result[:items].length.should == RedisPagination.page_size
+        result[:items][0].should == 'item_1'
+        result[:items][-1].should == 'item_25'
+
+        result = items_paginator.page(2, :reverse => false, :with_scores => false)
+        result[:items].length.should == 2
+        result[:items][-1].should == 'item_27'
+
+        result = items_paginator.page(1, :page_size => 5, :with_scores => false)
+        result[:items].length.should == 5
+        result[:items][-1].should == 'item_23'
+        result[:current_page].should == 1
+        result[:total_pages].should == 6
+      end
+    end
+
+    describe '#all' do
+      it 'should return all the items with the default options' do
+        add_items_to_sorted_set('items', 50)
+        items_paginator = RedisPagination.paginate('items')
+        items_paginator.all.tap do |all_items|
+          all_items[:total_items].should == 50
+          all_items[:items].length.should == 50
+        end
+      end
     end
   end
 
-  describe '#total_items' do
-    it 'should return the correct number of items' do
-      add_items_to_sorted_set('items', RedisPagination.page_size)
+  context 'multiple keys' do
+    describe '#total_pages' do
+      it 'should return the correct number of pages' do
+        add_items_to_sorted_set('items_1', RedisPagination.page_size*2)
+        add_items_to_sorted_set('items_2', RedisPagination.page_size*2)
 
-      items_paginator = RedisPagination.paginate('items')
-      items_paginator.total_items.should == RedisPagination.page_size
-    end
-  end
+        items_paginator = RedisPagination.paginate(['items_1', 'items_2'])
+        items_paginator.total_pages.should == 4
+      end
 
-  describe '#page' do
-    it 'should return the correct page of items with the default options' do
-      add_items_to_sorted_set('items', RedisPagination.page_size + 2)
+      it 'should return the correct number of pages using a different page size' do
+        add_items_to_sorted_set('items_1', 25)
+        add_items_to_sorted_set('items_2', 25)
 
-      items_paginator = RedisPagination.paginate('items')
-      result = items_paginator.page(1)
-      result[:items].length.should == RedisPagination.page_size
-      result[:items][0].should == ['item_27', 27.0]
-      result[:items][-1].should == ['item_3', 3.0]
-
-      result = items_paginator.page(2)
-      result[:items].length.should == 2
-      result[:items][-1].should == ['item_1', 1.0]
+        items_paginator = RedisPagination.paginate(['items_1', 'items_2'])
+        items_paginator.total_pages(5).should == 10
+      end
     end
 
-    it 'should return the correct page of items with the options set' do
-      add_items_to_sorted_set('items', RedisPagination.page_size + 2)
+    describe '#total_items' do
+      it 'should return the correct number of items' do
+        add_items_to_sorted_set('items_1', RedisPagination.page_size)
+        add_items_to_sorted_set('items_2', RedisPagination.page_size)
 
-      items_paginator = RedisPagination.paginate('items')
-      result = items_paginator.page(1, :reverse => false, :with_scores => false)
-      result[:items].length.should == RedisPagination.page_size
-      result[:items][0].should == 'item_1'
-      result[:items][-1].should == 'item_25'
-
-      result = items_paginator.page(2, :reverse => false, :with_scores => false)
-      result[:items].length.should == 2
-      result[:items][-1].should == 'item_27'
-
-      result = items_paginator.page(1, :page_size => 5, :with_scores => false)
-      result[:items].length.should == 5
-      result[:items][-1].should == 'item_23'
-      result[:current_page].should == 1
-      result[:total_pages].should == 6
+        items_paginator = RedisPagination.paginate(['items_1', 'items_2'])
+        items_paginator.total_items.should == RedisPagination.page_size*2
+      end
     end
-  end
 
-  describe '#all' do
-    it 'should return all the items with the default options' do
-      add_items_to_sorted_set('items', 50)
-      items_paginator = RedisPagination.paginate('items')
-      items_paginator.all.tap do |all_items|
-        all_items[:total_items].should == 50
-        all_items[:items].length.should == 50
+    describe '#page' do
+      it 'should return the correct page of items with the default options' do
+        add_items_to_sorted_set('items_1', RedisPagination.page_size + 2)
+        add_items_to_sorted_set('items_2', RedisPagination.page_size + 2)
+
+        items_paginator = RedisPagination.paginate(['items_1', 'items_2'])
+        result = items_paginator.page(1)
+        result[:items].length.should == RedisPagination.page_size
+        result[:items][0].should == ['item_27', 27.0]
+        result[:items][-1].should == ["item_15", 15.0]
+
+        result = items_paginator.page(2)
+        result[:items].length.should == 25
+        result[:items][-1].should == ["item_3", 3.0]
+      end
+
+      it 'should return the correct page of items with the options set' do
+        add_items_to_sorted_set('items_1', RedisPagination.page_size + 2)
+        add_items_to_sorted_set('items_2', RedisPagination.page_size + 2)
+
+        items_paginator = RedisPagination.paginate(['items_1', 'items_2'])
+        result = items_paginator.page(1, :reverse => false, :with_scores => false)
+        result[:items].length.should == RedisPagination.page_size
+        result[:items][0].should == 'item_1'
+        result[:items][-1].should == 'item_25'
+
+        result = items_paginator.page(2, :reverse => false, :with_scores => false)
+        result[:items].length.should == 25
+        result[:items][-1].should == "item_23"
+
+        result = items_paginator.page(1, :page_size => 5, :with_scores => false)
+        result[:items].length.should == 5
+        result[:items][-1].should == 'item_23'
+        result[:current_page].should == 1
+        result[:total_pages].should == 11
+      end
+    end
+
+    describe '#all' do
+      it 'should return all the items with the default options' do
+        add_items_to_sorted_set('items_1', 50)
+        add_items_to_sorted_set('items_2', 50)
+        items_paginator = RedisPagination.paginate(['items_1', 'items_2'])
+        items_paginator.all.tap do |all_items|
+          all_items[:total_items].should == 100
+          all_items[:items].length.should == 100
+        end
       end
     end
   end

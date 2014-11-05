@@ -15,7 +15,11 @@ module RedisPagination
     #   a +RedisPagination::Paginator::SortedSetPaginator+ depending on the 
     #   type of +key+.
     def paginate(key, options = {})
-      type = RedisPagination.redis.type(key)
+      unless key.is_a?Array
+        type = RedisPagination.redis.type(key)
+      else
+        type = RedisPagination.redis.type(key.last)
+      end
 
       case type
       when 'list'

@@ -1,3 +1,3 @@
 module RedisPagination
-  VERSION = '1.2.0'
+  VERSION = '1.2.4'
 end
