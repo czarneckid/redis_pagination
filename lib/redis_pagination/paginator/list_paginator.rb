@@ -46,7 +46,7 @@ module RedisPagination
         items = if @keys
           @keys.map{|k| RedisPagination.redis.lrange(k, 0, -1) }.flatten(1)
         else
-          RedisPagination.redis.lrange(@key, starting_offset, ending_offset)
+          RedisPagination.redis.lrange(@key, 0, -1)
         end
 
         {
